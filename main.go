@@ -38,7 +38,7 @@ func main() {
 
 		time.Sleep(10 * time.Second)
 
-		cmd := exec.Command("cmd", "/C", `C:\Users\Administrator\Desktop\capitalcity_dev\server-data\sv_start.bat`)
+		cmd := exec.Command("cmd", "/C", `C:\Users\Administrator\SERVER\sv_start.bat`)
 		
 		stdout, err := cmd.StdoutPipe()
 		if err != nil {
@@ -86,9 +86,8 @@ func timeUntilNextRestart() time.Duration {
 	loc := now.Location()
 
 	restartTimes := []time.Time{
-		time.Date(year, month, day, 7, 0, 0, 0, loc),  // 07:00
-		time.Date(year, month, day, 18, 0, 0, 0, loc), // 14:10
-	}
+		time.Date(year, month, day, 7, 0, 0, 0, loc), 
+		time.Date(year, month, day, 18, 0, 0, 0, loc), 
 
 	var nextRestart time.Time
 	for _, rt := range restartTimes {
