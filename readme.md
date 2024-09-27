@@ -5,7 +5,6 @@ Um sistema para calcular o tempo até o próximo reinício de um servidor FiveM.
 
 **Funcionalidades:**
 - Cálculo automático do tempo até o próximo reinício.
-- Capacidade de executar comandos diretamente no terminal.
 - Função para leitura de registros do terminal/logs.
 
 ## Como Usar
