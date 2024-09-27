@@ -59,18 +59,25 @@ func main() {
 			continue
 		}
 
-		go printOutput(stdout, "LOG")
-		go printOutput(stderr, "LOG")
+		go printOutput(stdout, "STDOUT")
+		go printOutput(stderr, "STDERR")
 
+		logChan := make(chan bool)
 		go func() {
 			err = cmd.Wait()
 			if err != nil {
 				red := color.New(color.FgRed).SprintfFunc()
 				fmt.Println(red("Servidor encerrado com erro: %v", err))
 			}
+			close(logChan)
 		}()
 
-		time.Sleep(1 * time.Minute)
+		select {
+		case <-logChan:
+			fmt.Println("Servidor encerrado. Reiniciando o processo...")
+		case <-time.After(1 * time.Minute):
+			fmt.Println("Tempo de espera excedido. Continuando o loop...")
+		}
 	}
 }
 
