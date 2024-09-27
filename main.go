@@ -6,6 +6,7 @@ import (
 	"io"
 	"os/exec"
 	"time"
+
 	"github.com/fatih/color"
 )
 
@@ -34,12 +35,12 @@ func main() {
 		fmt.Println(yellow("Iniciando processo de reinício..."))
 
 		stopCmd := exec.Command("taskkill", "/F", "/IM", "FXServer.exe")
-		stopCmd.Run() 
+		stopCmd.Run()
 
 		time.Sleep(10 * time.Second)
 
-		cmd := exec.Command("cmd", "/C", `C:\Users\Administrator\SERVER\sv_start.bat`)
-		
+		cmd := exec.Command("cmd", "/C", `C:\Users\Administrator\Desktop\Capital-Valley-Voip\server.bat`)
+
 		stdout, err := cmd.StdoutPipe()
 		if err != nil {
 			fmt.Println("Erro ao criar pipe para stdout:", err)
@@ -86,8 +87,9 @@ func timeUntilNextRestart() time.Duration {
 	loc := now.Location()
 
 	restartTimes := []time.Time{
-		time.Date(year, month, day, 7, 0, 0, 0, loc), 
-		time.Date(year, month, day, 18, 0, 0, 0, loc), 
+		time.Date(year, month, day, 7, 0, 0, 0, loc),
+		time.Date(year, month, day, 18, 0, 0, 0, loc),
+	}
 
 	var nextRestart time.Time
 	for _, rt := range restartTimes {
