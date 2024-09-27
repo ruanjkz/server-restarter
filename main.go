@@ -23,6 +23,9 @@ func main() {
 		yellow := color.New(color.FgYellow).SprintfFunc()
 		fmt.Println(yellow("Próximo reinício em %d horas e %d minutos...", hours, minutes))
 
+		// Inicia o servidor imediatamente na primeira execução
+		startServer()
+
 		if sleepDuration <= 0 {
 			red := color.New(color.FgRed).SprintFunc()
 			fmt.Println(red("Erro: a duração do próximo reinício é inválida. Tentando novamente..."))
@@ -39,45 +42,49 @@ func main() {
 
 		time.Sleep(10 * time.Second)
 
-		cmd := exec.Command("cmd", "/C", `C:\Users\Administrator\Desktop\Capital-Valley-Voip\server.bat`)
+		startServer()
+	}
+}
 
-		stdout, err := cmd.StdoutPipe()
-		if err != nil {
-			fmt.Println("Erro ao criar pipe para stdout:", err)
-			continue
-		}
-		stderr, err := cmd.StderrPipe()
-		if err != nil {
-			fmt.Println("Erro ao criar pipe para stderr:", err)
-			continue
-		}
+func startServer() {
+	cmd := exec.Command("cmd", "/C", `C:\Users\Administrator\Desktop\Capital-Valley-Voip\server.bat`)
 
-		err = cmd.Start()
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		fmt.Println("Erro ao criar pipe para stdout:", err)
+		return
+	}
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		fmt.Println("Erro ao criar pipe para stderr:", err)
+		return
+	}
+
+	err = cmd.Start()
+	if err != nil {
+		red := color.New(color.FgRed).SprintfFunc()
+		fmt.Println(red("Erro ao iniciar o servidor: %v", err))
+		return
+	}
+
+	go printOutput(stdout, "LOG")
+	go printOutput(stderr, "LOG")
+
+	logChan := make(chan bool)
+	go func() {
+		err = cmd.Wait()
 		if err != nil {
 			red := color.New(color.FgRed).SprintfFunc()
-			fmt.Println(red("Erro ao iniciar o servidor: %v", err))
-			continue
+			fmt.Println(red("Servidor encerrado com erro: %v", err))
 		}
+		close(logChan)
+	}()
 
-		go printOutput(stdout, "STDOUT")
-		go printOutput(stderr, "STDERR")
-
-		logChan := make(chan bool)
-		go func() {
-			err = cmd.Wait()
-			if err != nil {
-				red := color.New(color.FgRed).SprintfFunc()
-				fmt.Println(red("Servidor encerrado com erro: %v", err))
-			}
-			close(logChan)
-		}()
-
-		select {
-		case <-logChan:
-			fmt.Println("Servidor encerrado. Reiniciando o processo...")
-		case <-time.After(1 * time.Minute):
-			fmt.Println("Tempo de espera excedido. Continuando o loop...")
-		}
+	select {
+	case <-logChan:
+		fmt.Println("Servidor encerrado. Reiniciando o processo...")
+	case <-time.After(1 * time.Minute):
+		fmt.Println("Tempo de espera excedido. Continuando o loop...")
 	}
 }
 
