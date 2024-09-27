@@ -23,7 +23,6 @@ func main() {
 		yellow := color.New(color.FgYellow).SprintfFunc()
 		fmt.Println(yellow("Próximo reinício em %d horas e %d minutos...", hours, minutes))
 
-		// Inicia o servidor imediatamente na primeira execução
 		startServer()
 
 		if sleepDuration <= 0 {
